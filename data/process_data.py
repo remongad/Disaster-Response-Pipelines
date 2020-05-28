@@ -35,13 +35,17 @@ def clean_data(df):
     df = df.drop('categories', axis = 1)
     # concatenate the original dataframe with the new `categories` dataframe
     df = pd.concat([df, categories], axis = 1)
+
+    # remove duplicate rows in the dataframe
     df.drop_duplicates(inplace=True)
+    
     return df
 
 
 def save_data(df, database_filename):
+    # create database in sqlite dbms and table called 'cleaned_data' contains the df
     engine = create_engine(f'sqlite:///{database_filename}')
-    df.to_sql('cleaned_data', engine, index=False)  
+    df.to_sql('cleaned_data', engine, index=False, if_exists = 'replace')  
 
 
 def main():
