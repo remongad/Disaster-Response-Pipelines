@@ -26,11 +26,11 @@ def tokenize(text):
     return clean_tokens
 
 # load data
-engine = create_engine('sqlite:///../data/YourDatabaseName.db')
-df = pd.read_sql_table('YourTableName', engine)
+engine = create_engine('sqlite:///../data/DisasterResponse.db')
+df = pd.read_sql_table('cleaned_data', engine)
 
 # load model
-model = joblib.load("../models/your_model_name.pkl")
+model = joblib.load("../models/classifier.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
@@ -43,8 +43,14 @@ def index():
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     
+    genre_groups_freq = df.melt(id_vars=['id', 'message', 'original', 'genre']).groupby(['genre', 'variable']).agg({'value':'sum'}).reset_index()
+    df_direct = genre_groups_freq[genre_groups_freq['genre'] == 'direct'].nlargest(7, 'value')
+    df_news = genre_groups_freq[genre_groups_freq['genre'] == 'news'].nlargest(7, 'value')
+    df_social = genre_groups_freq[genre_groups_freq['genre'] == 'social'].nlargest(7, 'value')
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
+    
+    
     graphs = [
         {
             'data': [
@@ -61,6 +67,60 @@ def index():
                 },
                 'xaxis': {
                     'title': "Genre"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=list(df_direct['variable']),
+                    y=list(df_direct['value'])
+                )
+            ],
+
+            'layout': {
+                'title': 'Top 7 Categories in the Direct Genre',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Categories in Direct Genre"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=list(df_news['variable']),
+                    y=list(df_news['value'])
+                )
+            ],
+
+            'layout': {
+                'title': 'Top 7 Categories in the News Genre',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Categories in News Genre"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=list(df_social['variable']),
+                    y=list(df_social['value'])
+                )
+            ],
+
+            'layout': {
+                'title': 'Top 7 Categories in the Social Genre',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Categories in Social Genre"
                 }
             }
         }
