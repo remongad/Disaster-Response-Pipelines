@@ -3,6 +3,14 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    """
+    load files from csv format to pandas dataframe
+    Args:
+        messages_filepath: str: path to the messages csv file
+        categories_filepath: str: path to the categories csv file
+    Returns:
+        pandas dataframe that combine both files using their ids
+    """
     
     # load messages dataset
     messages = pd.read_csv(messages_filepath)
@@ -16,6 +24,15 @@ def load_data(messages_filepath, categories_filepath):
     return df
 
 def clean_data(df):
+    """
+    clean the categories column by separating each value in it into single column then specifiying approapriate column name.
+    In addition create flags for each category column of 1 or 0 and change its datatype
+
+    Args:
+        df: pandas dataframe: containg 'categories' column
+    Returns:
+        pandas dataframe that has each value in the categories column replaced and expanded into single column.
+    """
     categories = df['categories'].str.split(';', expand = True)
     # select the first row of the categories dataframe
     row = categories.iloc[0]
@@ -38,11 +55,20 @@ def clean_data(df):
 
     # remove duplicate rows in the dataframe
     df.drop_duplicates(inplace=True)
-    
+
     return df
 
 
 def save_data(df, database_filename):
+    """
+    save pandas dataframe to a sqlite database.
+    
+    Args:
+        df: pandas dataframe: 
+        database_filename: str: sqlite database filename 
+    Returns:
+        it creates an sqlite database with the specified name and save the dataframe in table called 'cleaned_data'
+    """
     # create database in sqlite dbms and table called 'cleaned_data' contains the df
     engine = create_engine(f'sqlite:///{database_filename}')
     df.to_sql('cleaned_data', engine, index=False, if_exists = 'replace')  
