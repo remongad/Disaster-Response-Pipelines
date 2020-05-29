@@ -43,7 +43,10 @@ def index():
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     
+    # create data frame that sums all the categories flag per genre and category
     genre_groups_freq = df.melt(id_vars=['id', 'message', 'original', 'genre']).groupby(['genre', 'variable']).agg({'value':'sum'}).reset_index()
+    
+    # get the top 7 sum for each category in the genre column
     df_direct = genre_groups_freq[genre_groups_freq['genre'] == 'direct'].nlargest(7, 'value')
     df_news = genre_groups_freq[genre_groups_freq['genre'] == 'news'].nlargest(7, 'value')
     df_social = genre_groups_freq[genre_groups_freq['genre'] == 'social'].nlargest(7, 'value')
